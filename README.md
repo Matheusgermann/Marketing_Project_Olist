@@ -30,7 +30,7 @@ provisions a secure **Unity Catalog Volume** to act as the landing zone for the 
 Downloads the Olist dataset straight from the Kaggle API into the Volume, using credentials
 stored in a **Databricks Secret Scope** (never hardcoded). It then loops through every raw CSV
 and writes it as a Delta table, standardizing the table names along the way. The write uses
-`overwrite` mode, so the notebook is **idempotent**, re-running it never duplicates data.
+`overwrite` mode, so the notebook is **idempotent** — re-running it never duplicates data.
 
 ### `03` — Silver Layer (Refinement)
 Turns raw Bronze tables into a clean, trustworthy business layer:
@@ -59,9 +59,9 @@ star schema:
   segment, and geography.
 
 Because fact and dimension share a clean key, filters in Power BI propagate correctly across
-the whole model, a segment, state, or date filter reaches every visual on the page. A flat
-table could not do this: the transactional `customer_id` changes with every order, so revenue
-and customer identity live at different grains and cannot be joined directly.
+the whole model: a segment, state, or date filter reaches every visual on the page. A flat
+table could not do this, since the transactional `customer_id` changes with every order, so
+revenue and customer identity live at different grains and cannot be joined directly.
 
 > **Geography resolution.** A single customer can place orders from different locations. Each
 > customer is resolved to the location of their **most recent purchase**, which keeps the
@@ -108,9 +108,7 @@ total revenue of its Silver source, proof that no data was lost or duplicated al
 
 ## 📈 Dashboard
 
-The Gold layer feeds a Power BI report in **Import mode**, the dataset is a static historical
-snapshot (Sep 2016 – Aug 2018), so no scheduled refresh is needed. The report is organized into
-three pages:
+The Gold layer feeds a Power BI report organized into three pages:
 
 - **Executive Overview** — headline KPIs (revenue, orders, customers, average ticket) alongside
   revenue and order trends over time, and a first look at how customers and revenue split
@@ -120,8 +118,14 @@ three pages:
   ticket by segment.
 - **Geo Strategy** — where the revenue is: a shape map of Brazil plus revenue by state, top
   cities, and average ticket by state.
-  
-> 💡 **Production Note:** Since the Olist dataset is a static historical snapshot, this project uses Power BI in Import mode without scheduled refreshes. However, in a real-world, continuous production environment, this pipeline would be fully automated. A **Databricks Workflow (Job)** would be configured to trigger the ingestion and transformation notebooks on a schedule (e.g., daily at 2 AM), coupled with a **Power BI Scheduled Refresh** via the Power BI Service/Fabric. This setup would ensure the executive dashboard reflects the latest e-commerce transactions without any manual intervention.
+
+> 💡 **Production Note:** The Olist dataset is a static historical snapshot (Oct 2016 – Aug 2018),
+> so this project uses Power BI in Import mode without scheduled refreshes. In a real-world,
+> continuous production environment, the pipeline would be fully automated: a **Databricks
+> Workflow (Job)** would trigger the ingestion and transformation notebooks on a schedule
+> (e.g., daily at 2 AM), coupled with a **Power BI Scheduled Refresh** via the Power BI
+> Service / Fabric. This setup would keep the executive dashboard aligned with the latest
+> e-commerce transactions without any manual intervention.
 
 🔗 **[View the live dashboard](https://app.powerbi.com/view?r=eyJrIjoiNTZlOWNhMWQtNjRmMC00MTRhLTk3NWEtNjE1NGU4OTkzZWYwIiwidCI6IjY3NGM2ZGQyLWQ5YWQtNGU1ZC05YzU2LWI0MTZiOWM5YzYzOSJ9)**
 
